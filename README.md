@@ -4,7 +4,7 @@
 > 把芯片手册、协议写法、历史项目案例和可复用源码整理成可检索、可引用的知识，
 > 通过 HTTP API 与 MCP 提供给工程 agent 和工程师查阅。
 
-> **这是公开的架构与设计展示仓库，不包含生产数据。**
+> **这是公开的架构、设计与核心引擎代码展示仓库，包含一个可运行的最小 demo。**
 > 原始芯片手册、客户工程源码、项目资料、token、证书、服务器配置均不在本仓库中。
 > 具体范围见 [NOTICE.md](NOTICE.md)。
 
@@ -41,7 +41,51 @@ OWKB 的目标不是做一个通用网盘，而是给研发 agent 提供一份
 
 ---
 
-## 3. 架构
+## 3. 核心代码与最小 demo
+
+本仓库不只是设计文档，还包含 OWKB 的核心 Python 引擎和一个脱敏示例知识库。
+核心代码位于 `app/`，可以直接阅读，也可以在本地跑索引/CLI：
+
+```text
+app/
+  config.py           配置与路径
+  frontmatter.py      YAML frontmatter 解析
+  store.py            文档/目录/元数据
+  index.py            SQLite FTS5 索引构建
+  importer.py         Markdown 导入
+  cli.py              CLI 入口
+  server.py           FastAPI 服务
+  mcp_tools.py        MCP 工具适配
+  tokens.py           只读 token 管理
+  uploads.py          受控上传隔离区
+  upload_security.py  上传安全扫描
+  autoindex.py        内容变化检测
+```
+
+`config/kb.yaml` 是本地示例配置；`content/示例/` 是一篇脱敏文档；
+`requirements.txt` 和 `kb.cmd` 用于启动最小 demo。
+
+### 最小运行
+
+```powershell
+py -3.12 -m pip install -r requirements.txt
+.\kb.cmd reindex
+.\kb.cmd status
+.\kb.cmd check
+```
+
+需要 HTTP/MCP 服务时：
+
+```powershell
+py -3.12 -m app.server
+```
+
+公开 demo 只包含最小配置；生产用的 mTLS、token 绑定、上传审核和通知不在公开数据中。
+内部数据准备脚本 `app/bootstrap.py` 属于私有工具，未包含在本仓库。
+
+---
+
+## 4. 架构
 
 ```mermaid
 flowchart LR
@@ -68,7 +112,7 @@ flowchart LR
 
 ---
 
-## 4. 知识模型
+## 5. 知识模型
 
 OWKB 把内容分为几类：
 
@@ -84,7 +128,7 @@ OWKB 把内容分为几类：
 
 ---
 
-## 5. Agent 如何用
+## 6. Agent 如何用
 
 ```text
 用户问题
@@ -106,7 +150,7 @@ MCP 接口是只读的，主要提供：
 
 ---
 
-## 6. 内容治理
+## 7. 内容治理
 
 导入不是简单地把文件丢进目录：
 
@@ -121,7 +165,7 @@ MCP 接口是只读的，主要提供：
 
 ---
 
-## 7. 当前状态
+## 8. 当前状态
 
 截至 2026-11-26，内部生产实例的规模约为：
 
@@ -134,11 +178,16 @@ chunks ≈ 5,300
 
 ---
 
-## 8. 本仓库包含什么
+## 9. 本仓库包含什么
 
 ```text
 README.md                         项目总览
 NOTICE.md                         公开范围与使用边界
+requirements.txt                   Python 依赖
+kb.cmd                             CLI 包装
+app/                               核心 Python 引擎
+config/kb.yaml                     本地示例配置
+content/示例/                      脱敏示例知识库
 docs/
   architecture.md                 组件与数据流
   knowledge-model.md              文档/手册/代码模型
@@ -147,6 +196,8 @@ docs/
   roadmap.md                      演进方向
 examples/
   sample-document.md              脱敏的文档格式示例
+assets/
+  example-block.png               示例图片
 ```
 
 **不包含：**
@@ -155,11 +206,12 @@ examples/
 - 公司/客户工程源码；
 - 项目案例中的产品资料；
 - token、证书、密钥、服务器地址与运维凭据；
-- 生产数据库、索引文件、日志与备份。
+- 生产数据库、索引文件、日志与备份；
+- 内部数据准备脚本 `app/bootstrap.py` 及生产导入配置。
 
 ---
 
-## 9. 适合谁看
+## 10. 适合谁看
 
 - 想了解“研发知识库 + agent 检索”如何设计的工程师；
 - 需要给内部手册/历史工程建立可检索索引的团队；
@@ -168,7 +220,7 @@ examples/
 
 ---
 
-## 10. 相关文档
+## 11. 相关文档
 
 - [架构与组件](docs/architecture.md)
 - [知识模型](docs/knowledge-model.md)
@@ -179,7 +231,7 @@ examples/
 
 ---
 
-## 11. 说明
+## 12. 说明
 
 OWKB 最初是为内部研发协作而建，本仓库只抽取了可公开的架构与设计经验。
 如果你对某个设计点感兴趣，欢迎通过 issue 讨论；请不要在本仓库提交内部资料或凭据。
