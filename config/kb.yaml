@@ -1,0 +1,12 @@
+server:
+  host: 127.0.0.1
+  port: 8787
+  public_base_url: http://127.0.0.1:8787
+
+index:
+  snippet_width: 180
+  max_read_chars: 60000
+  auto_reindex_interval: 60
+
+collections:
+  - 示例

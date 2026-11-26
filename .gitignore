@@ -1,0 +1,12 @@
+# runtime / generated
+__pycache__/
+*.pyc
+*.pyo
+data/
+logs/
+_uploads/
+_incoming/
+release/
+.venv/
+venv/
+.env
